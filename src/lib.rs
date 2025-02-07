@@ -1,0 +1,52 @@
+use anyhow::Result;
+use std::{fs, io::Write, path::PathBuf};
+
+mod tables;
+
+pub const SCALES_FILE_EXTENSION: &str = "acss";
+pub const COEFFICIENTS_FILE_EXTENSION: &str = "acsc";
+
+fn write_bytes(path: &PathBuf, bytes: &[u8]) -> Result<()> {
+    let mut file = fs::OpenOptions::new().create(true).truncate(true).write(true).open(path)?;
+
+    file.write_all(bytes)?;
+
+    Ok(())
+}
+
+#[allow(clippy::needless_range_loop)]
+fn flatten_coefficients(data: &[[[[[f32; 3]; 64]; 64]; 64]; 3]) -> Vec<f32> {
+    let mut result = Vec::with_capacity(3 * 64 * 64 * 64 * 3);
+    for i in 0..3 {
+        for j in 0..64 {
+            for k in 0..64 {
+                for l in 0..64 {
+                    for m in 0..3 {
+                        result.push(data[i][j][k][l][m]);
+                    }
+                }
+            }
+        }
+    }
+    result
+}
+
+pub fn write_srgb_tables(path: PathBuf) -> Result<()> {
+    let mut srgb_scales_path = path.clone();
+    srgb_scales_path.set_extension(SCALES_FILE_EXTENSION);
+    write_bytes(
+        &srgb_scales_path,
+        bytemuck::cast_slice(&tables::srgb_to_spectrum::SRGB_TO_SPECTRUM_TABLE_SCALE),
+    )?;
+
+    let mut srgb_coeffs_path = path.clone();
+    srgb_coeffs_path.set_extension(COEFFICIENTS_FILE_EXTENSION);
+    write_bytes(
+        &srgb_coeffs_path,
+        bytemuck::cast_slice(&flatten_coefficients(
+            &tables::srgb_to_spectrum::SRGB_TO_SPECTRUM_TABLE_DATA,
+        )),
+    )?;
+
+    Ok(())
+}

@@ -1,0 +1,13 @@
+[package]
+name = "appearance-color-spaces"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.95"
+bytemuck = "1.21.0"
+
+[lib]
+name = "appearance_color_spaces"
+crate-type = ["lib"]
+path = "src/lib.rs"
