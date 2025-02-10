@@ -13,6 +13,7 @@ crate-type = ["lib"]
 path = "src/lib.rs"
 
 [features]
-default = ["srgb", "aces"]
-srgb = []
+default = ["aces", "rec2020", "srgb"]
 aces = []
+rec2020 = []
+srgb = []
