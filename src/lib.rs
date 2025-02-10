@@ -56,6 +56,27 @@ pub fn write_aces_tables(path: PathBuf) -> Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "dci_p3")]
+pub fn write_dci_p3_tables(path: PathBuf) -> Result<()> {
+    let mut scales_path = path.clone();
+    scales_path.set_extension(SCALES_FILE_EXTENSION);
+    write_bytes(
+        &scales_path,
+        bytemuck::cast_slice(&tables::dci_p3_to_spectrum::DCI_P3_TO_SPECTRUM_TABLE_SCALE),
+    )?;
+
+    let mut coeffs_path = path.clone();
+    coeffs_path.set_extension(COEFFICIENTS_FILE_EXTENSION);
+    write_bytes(
+        &coeffs_path,
+        bytemuck::cast_slice(&flatten_coefficients(
+            &tables::dci_p3_to_spectrum::DCI_P3_TO_SPECTRUM_TABLE_DATA,
+        )),
+    )?;
+
+    Ok(())
+}
+
 #[cfg(feature = "rec2020")]
 pub fn write_rec2020_tables(path: PathBuf) -> Result<()> {
     let mut scales_path = path.clone();

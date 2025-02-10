@@ -13,7 +13,8 @@ crate-type = ["lib"]
 path = "src/lib.rs"
 
 [features]
-default = ["aces", "rec2020", "srgb"]
+default = ["aces", "dci_p3", "rec2020", "srgb"]
 aces = []
+dci_p3 = []
 rec2020 = []
 srgb = []
