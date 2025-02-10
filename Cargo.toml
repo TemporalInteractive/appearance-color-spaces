@@ -11,3 +11,8 @@ bytemuck = "1.21.0"
 name = "appearance_color_spaces"
 crate-type = ["lib"]
 path = "src/lib.rs"
+
+[features]
+default = ["srgb", "aces"]
+srgb = []
+aces = []

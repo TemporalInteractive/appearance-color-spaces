@@ -7,7 +7,11 @@ pub const SCALES_FILE_EXTENSION: &str = "acss";
 pub const COEFFICIENTS_FILE_EXTENSION: &str = "acsc";
 
 fn write_bytes(path: &PathBuf, bytes: &[u8]) -> Result<()> {
-    let mut file = fs::OpenOptions::new().create(true).truncate(true).write(true).open(path)?;
+    let mut file = fs::OpenOptions::new()
+        .create(true)
+        .truncate(true)
+        .write(true)
+        .open(path)?;
 
     file.write_all(bytes)?;
 
@@ -31,20 +35,42 @@ fn flatten_coefficients(data: &[[[[[f32; 3]; 64]; 64]; 64]; 3]) -> Vec<f32> {
     result
 }
 
+#[cfg(feature = "srgb")]
 pub fn write_srgb_tables(path: PathBuf) -> Result<()> {
-    let mut srgb_scales_path = path.clone();
-    srgb_scales_path.set_extension(SCALES_FILE_EXTENSION);
+    let mut scales_path = path.clone();
+    scales_path.set_extension(SCALES_FILE_EXTENSION);
     write_bytes(
-        &srgb_scales_path,
+        &scales_path,
         bytemuck::cast_slice(&tables::srgb_to_spectrum::SRGB_TO_SPECTRUM_TABLE_SCALE),
     )?;
 
-    let mut srgb_coeffs_path = path.clone();
-    srgb_coeffs_path.set_extension(COEFFICIENTS_FILE_EXTENSION);
+    let mut coeffs_path = path.clone();
+    coeffs_path.set_extension(COEFFICIENTS_FILE_EXTENSION);
     write_bytes(
-        &srgb_coeffs_path,
+        &coeffs_path,
         bytemuck::cast_slice(&flatten_coefficients(
             &tables::srgb_to_spectrum::SRGB_TO_SPECTRUM_TABLE_DATA,
+        )),
+    )?;
+
+    Ok(())
+}
+
+#[cfg(feature = "aces")]
+pub fn write_aces_tables(path: PathBuf) -> Result<()> {
+    let mut scales_path = path.clone();
+    scales_path.set_extension(SCALES_FILE_EXTENSION);
+    write_bytes(
+        &scales_path,
+        bytemuck::cast_slice(&tables::aces_to_spectrum::ACES_TO_SPECTRUM_TABLE_SCALE),
+    )?;
+
+    let mut coeffs_path = path.clone();
+    coeffs_path.set_extension(COEFFICIENTS_FILE_EXTENSION);
+    write_bytes(
+        &coeffs_path,
+        bytemuck::cast_slice(&flatten_coefficients(
+            &tables::aces_to_spectrum::ACES_TO_SPECTRUM_TABLE_DATA,
         )),
     )?;
 
